@@ -55,8 +55,8 @@ namespace SharpLox
 
         private static void Run(string script)
         {
-            var scanner = new Scanner();
-            var tokens = scanner.ScanTokens(script);
+            var scanner = new Scanner(script);
+            var tokens = scanner.ScanTokens();
 
             foreach(var token in tokens)
             {
@@ -64,7 +64,7 @@ namespace SharpLox
             }
         }
 
-        private static void Error(int line, string message)
+        public static void Error(int line, string message)
         {
             Report(line, "", message);
         }

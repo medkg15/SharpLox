@@ -2,15 +2,165 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace SharpLox
 {
     public class Scanner
     {
-        public IEnumerable<Token> ScanTokens(string script)
-        {
+        private readonly string _source;
+        private readonly List<Token> _tokens = new List<Token>();
 
+        private int start = 0;
+        private int current = 0;
+        private int line = 1;
+
+        public Scanner(string source)
+        {
+            _source = source;
+        }
+
+        public IEnumerable<Token> ScanTokens()
+        {
+            while (!IsAtEnd())
+            {
+                start = current;
+                ScanToken();
+            }
+
+            _tokens.Add(new Token(TokenType.Eof, "", null, line));
+            return _tokens;
+        }
+
+        private void ScanToken()
+        {
+            char c = Advance();
+            switch (c)
+            {
+                case '(': AddToken(TokenType.LeftParen); break;
+                case ')': AddToken(TokenType.RightParen); break;
+                case '{': AddToken(TokenType.LeftBrace); break;
+                case '}': AddToken(TokenType.RightBrace); break;
+                case ',': AddToken(TokenType.Comma); break;
+                case '.': AddToken(TokenType.Dot); break;
+                case '-': AddToken(TokenType.Minus); break;
+                case '+': AddToken(TokenType.Plus); break;
+                case ';': AddToken(TokenType.Semicolon); break;
+                case '*': AddToken(TokenType.Star); break;
+                case '!': AddToken(Match('=') ? TokenType.BangEqual : TokenType.Bang); break;
+                case '>': AddToken(Match('=') ? TokenType.GreaterEqual : TokenType.Greater); break;
+                case '<': AddToken(Match('=') ? TokenType.LessEqual : TokenType.Less); break;
+                case '=': AddToken(Match('=') ? TokenType.EqualEqual : TokenType.Equal); break;
+                case '/':
+                    if (!MatchComment())
+                    {
+                        AddToken(TokenType.Slash);
+                    };
+                    break;
+                case ' ':
+                case '\r':
+                case '\t':
+                    // ignore whitespace
+                    break;
+                case '\n':
+                    line++;
+                    break;
+                default:
+                    Program.Error(line, "Unexpected character.");
+                    break;
+            }
+        }
+
+        private char Advance()
+        {
+            current++;
+            return _source[current - 1];
+        }
+
+        private char Peek()
+        {
+            if (IsAtEnd())
+            {
+                return '\0';
+            }
+            return _source[current];
+        }
+
+        private void AddToken(TokenType type)
+        {
+            AddToken(type, null);
+        }
+
+        private void AddToken(TokenType type, object literal)
+        {
+            var text = _source.Substring(start, current - start);
+            _tokens.Add(new Token(type, text, literal, line));
+        }
+
+        private bool IsAtEnd()
+        {
+            return current >= _source.Length;
+        }
+
+        private bool Match(char c)
+        {
+            if (IsAtEnd())
+            {
+                return false;
+            }
+
+            if (_source[current] != c)
+            {
+                return false;
+            }
+
+            current++;
+            return true;
+        }
+
+        private bool MatchComment()
+        {
+            // single line comment
+            if (Match('/'))
+            {
+                while (Peek() != '\n' && !IsAtEnd())
+                {
+                    Advance();
+                }
+                return true;
+            }
+
+            // block comments
+            if (Match('*'))
+            {
+                var foundEnd = false;
+                while (!foundEnd && !IsAtEnd())
+                {
+                    var next = Advance();
+                    if (next == '\n')
+                    {
+                        line++;
+                    }
+                    if (next == '*')
+                    {
+                        if (Peek() == '/')
+                        {
+                            foundEnd = true;
+                            current++;
+                        }
+                    }
+                }
+
+                if (!foundEnd)
+                {
+                    Program.Error(line, "Unclosed comment block.");
+                }
+
+                return true;
+            }
+
+            return false;
         }
     }
 }
