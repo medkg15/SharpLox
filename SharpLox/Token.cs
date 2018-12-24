@@ -8,10 +8,10 @@ namespace SharpLox
 {
     public class Token
     {
-        public readonly TokenType Type;
-        public readonly string Lexeme;
-        public readonly object Literal;
-        public readonly int Line;
+        public TokenType Type { get; }
+        public string Lexeme { get; }
+        public object Literal { get; }
+        public int Line { get; }
 
         public Token(TokenType type, string lexeme, object literal, int line)
         {
