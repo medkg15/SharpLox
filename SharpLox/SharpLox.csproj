@@ -48,6 +48,7 @@
       <DependentUpon>AbstractSyntaxTree.tt</DependentUpon>
     </Compile>
     <Compile Include="AstPrinter.cs" />
+    <Compile Include="Parser.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Scanner.cs" />

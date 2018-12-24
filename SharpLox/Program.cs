@@ -57,16 +57,32 @@ namespace SharpLox
         {
             var scanner = new Scanner(script);
             var tokens = scanner.ScanTokens();
+            var parser = new Parser(tokens);
+            var expression = parser.Parse();
 
-            foreach(var token in tokens)
+            if(hadError)
             {
-                Console.WriteLine(token);
+                return;
             }
+
+            Console.WriteLine(new AstPrinter().Print(expression));
         }
 
         public static void Error(int line, string message)
         {
             Report(line, "", message);
+            hadError = true;
+        }
+
+        public static void Error(Token token, string message)
+        {
+            if(token.Type == TokenType.Eof)
+            {
+                Report(token.Line, " at end", message);
+            }else
+            {
+                Report(token.Line, $" at '{token.Lexeme}'", message);
+            }
             hadError = true;
         }
 
