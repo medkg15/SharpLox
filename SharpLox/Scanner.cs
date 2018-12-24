@@ -41,7 +41,7 @@ namespace SharpLox
             _source = source;
         }
 
-        public IEnumerable<Token> ScanTokens()
+        public List<Token> ScanTokens()
         {
             while (!IsAtEnd())
             {
