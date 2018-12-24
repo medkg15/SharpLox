@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace SharpLox
 {
-    public class Program
+    public static class Program
     {
         private static bool hadError;
 
@@ -25,7 +25,7 @@ namespace SharpLox
             else
             {
                 RunPrompt();
-            }
+            }            
         }
 
         private static void RunFile(string filename)
