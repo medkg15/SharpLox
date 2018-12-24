@@ -1,0 +1,189 @@
+﻿<#@ template debug="false" hostspecific="true" language="C#" #>
+<#@ assembly name="System.Core" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ output extension=".cs" #>
+<#
+// Produces a set of C# classes representing an abstract syntax tree, based on a specification file.
+// Supports multiple types of abstract syntax trees. e.g. Statements and Expressions as two separate class hierarchies.
+// Each distinct type of AST is represented as a base class (abstract), and then a series of specific node types (each their own inheriting class).
+// The node types have fields corresponding to the information on that AST node type.  e.g. a Unary Expression has an Operator and Expression.
+
+// The expected format of the definition file is:
+/*
+	AstTypeOne
+	AstOneNodeTypeOne	: Type name, Type name2, Type name3
+	AstOneNodeTypeTwo	: Type name
+	AstTypeTwo
+	AstTwoNodeTypeOne	: Type name
+*/
+
+// The first line is the AST type.  e.g. Expression or Statement.
+// Following lines (before the next AST type, if any) are each node type for that AST.
+// These have a name, followed by a field list (comma separated) after a ':'.  Each field consists of a Type (.NET type) and name.  The name should be camelCase.
+
+// The example above would produce:
+/*
+	using System;
+
+	namespace SharpLox
+	{
+		public abstract class AstTypeOne
+		{
+			public class AstOneNodeTypeOne : AstTypeOne
+			{
+				public AstOneNodeTypeOne(
+				Type name,
+				Type name2,
+				Type name3
+				)
+				{
+					this.Name = name;
+					this.Name2 = name2;
+					this.Name3 = name3;
+				}
+
+				public Type Name { get; set; }
+				public Type Name2 { get; set; }
+				public Type Name3 { get; set; }
+			} 
+			public class AstOneNodeTypeTwo : AstTypeOne
+			{
+				public AstOneNodeTypeTwo(
+				Type name
+				)
+				{
+					this.Name = name;
+				}
+
+				public Type Name { get; set; }
+			} 
+		}
+
+		public abstract class AstTypeTwo
+		{
+			public class AstTwoNodeTypeOne : AstTypeTwo
+			{
+				public AstTwoNodeTypeOne(
+				Type name
+				)
+				{
+					this.Name = name;
+				}
+
+				public Type Name { get; set; }
+			} 
+		} 
+	} 
+*/
+#>
+using System;
+
+namespace SharpLox
+{
+<#
+	// load our definition file
+	var file = this.Host.ResolvePath(@"..\AbstractSyntaxTree.txt");
+	var lines = System.IO.File.ReadLines(file);
+
+	string lastType = null; // the root AST node type, which is generated as an abstract class, and all other node types inherit from.
+
+	foreach(var line in lines)
+	{
+		// check if the line we're dealing with is an AST definition, or an AST node-type definition.
+		if(!line.Contains(":"))
+		{
+			// write a closing brace if this _isn't_ the first AST definition we're dealing with
+			if (lastType != null)
+			{
+#>
+	}
+
+<#
+			}
+
+			lastType = line;
+#>
+	public abstract class <#=line#>
+	{
+<#
+		}
+		else
+		{
+			// extract node type information: name and fields (type and name of each).
+			var segments = line.Split(new [] {':'}, StringSplitOptions.RemoveEmptyEntries);
+			var className = segments[0].Trim();
+			var fields = segments[1].Split(new [] {','}, StringSplitOptions.RemoveEmptyEntries)
+				.Select(fieldsSegment => {
+					var fieldSegments = fieldsSegment.Split(new [] {' '}, StringSplitOptions.RemoveEmptyEntries); 
+					return new KeyValuePair<string, string>(fieldSegments[0].Trim(), fieldSegments[1].Trim());
+				})
+				.ToArray();
+#>
+		public class <#=className#> : <#=lastType#>
+		{
+			public <#=className#>(
+<#
+			// write constructor parameters.
+			for(var i = 0; i < fields.Length; i++)
+			{
+				// whether a comma gets written at the end or not.
+				var end = i == fields.Length - 1 ? "" : ",";
+#>
+			<#=fields[i].Key#> <#=GetParameterName(fields[i].Value)#><#=end#>
+<#
+			}
+#>
+			)
+			{
+<#
+		// write property assignments from constructor arguments.
+		foreach(var field in fields)
+			{
+#>
+				this.<#=GetPropertyName(field.Value)#> = <#=GetParameterName(field.Value)#>;
+<#
+			}
+#>
+			}
+
+<#
+			// write properties.
+			foreach(var field in fields)
+			{
+#>
+			public <#=field.Key#> <#=GetPropertyName(field.Value)#> { get; set; }
+<#
+			}
+#>
+		} <#// closing brace for node type class #>
+
+<#
+		}
+	}
+#>
+	} <#// closing brace for abstract class #>
+
+} <#// closing brace for namespace #>
+<#
+	// Gets the name of the field for use as a property (tile case).
+	string GetPropertyName(string name)
+	{
+		return char.ToUpper(name[0]) + name.Substring(1);
+	}
+
+	// Gets the name of the field for use as a constructor parameter (remains camelCase).
+	string GetParameterName(string name)
+	{
+		// fix reserved words
+		if (name == "operator")
+		{
+			return "@operator";
+		}
+		else
+		{
+			return name;
+		}
+	}
+#>
