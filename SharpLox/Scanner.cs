@@ -58,6 +58,8 @@ namespace SharpLox
                         AddToken(TokenType.Slash);
                     };
                     break;
+                case '"':
+                    ConsumeString(); break;
                 case ' ':
                 case '\r':
                 case '\t':
@@ -67,7 +69,14 @@ namespace SharpLox
                     line++;
                     break;
                 default:
-                    Program.Error(line, "Unexpected character.");
+                    if (IsDigit(c))
+                    {
+                        ConsumeNumber();
+                    }
+                    else
+                    {
+                        Program.Error(line, "Unexpected character.");
+                    }
                     break;
             }
         }
@@ -87,6 +96,15 @@ namespace SharpLox
             return _source[current];
         }
 
+        private char PeekNext()
+        {
+            if (current + 1 >= _source.Length)
+            {
+                return '\0';
+            }
+            return _source[current + 1];
+        }
+
         private void AddToken(TokenType type)
         {
             AddToken(type, null);
@@ -101,6 +119,11 @@ namespace SharpLox
         private bool IsAtEnd()
         {
             return current >= _source.Length;
+        }
+
+        private bool IsDigit(char c)
+        {
+            return c >= '0' && c <= '9';
         }
 
         private bool Match(char c)
@@ -161,6 +184,49 @@ namespace SharpLox
             }
 
             return false;
+        }
+
+        private void ConsumeNumber()
+        {
+            while (IsDigit(Peek()) && !IsAtEnd())
+            {
+                Advance();
+            }
+
+            // check if we have a number after a period.
+            if (Peek() == '.' && IsDigit(PeekNext()))
+            {
+                Advance(); // consume .
+
+                while (IsDigit(Peek()))
+                {
+                    Advance();
+                }
+            }
+
+            AddToken(TokenType.Number, Double.Parse(_source.Substring(start, current - start)));
+        }
+
+        private void ConsumeString()
+        {
+            while (!IsAtEnd())
+            {
+                if (Peek() == '"')
+                {
+                    current++;
+                    AddToken(TokenType.String, _source.Substring(start + 1, current - start - 2));
+                    return;
+                }
+
+                if (Peek() == '\n')
+                {
+                    Program.Error(line, "Unclosed string literal.");
+                    return;
+                }
+
+                Advance();
+            }
+            Program.Error(line, "Unclosed string literal.");
         }
     }
 }
