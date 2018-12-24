@@ -20,7 +20,15 @@ namespace SharpLox
         {
             try
             {
-                return Expression();
+                var expression = Expression();
+
+                if (!IsAtEnd())
+                {
+                    Program.Error(Previous(), "Invalid token.");
+                    return null;
+                }
+
+                return expression;
             }
             catch(ParseError error)
             {
