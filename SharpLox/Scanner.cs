@@ -9,6 +9,26 @@ namespace SharpLox
 {
     public class Scanner
     {
+        private static readonly IDictionary<string, TokenType> Keywords = new Dictionary<string, TokenType>
+        {
+            { "and", TokenType.And },
+            { "class", TokenType.Class },
+            { "else", TokenType.Else },
+            { "false", TokenType.False },
+            { "for", TokenType.For },
+            { "fun", TokenType.Fun },
+            { "if", TokenType.If },
+            { "nil", TokenType.Nil },
+            { "or", TokenType.Or },
+            { "print", TokenType.Print },
+            { "return", TokenType.Return },
+            { "super", TokenType.Super },
+            { "this", TokenType.This },
+            { "true", TokenType.True },
+            { "var", TokenType.Var },
+            { "while", TokenType.While },
+        };
+
         private readonly string _source;
         private readonly List<Token> _tokens = new List<Token>();
 
@@ -73,6 +93,10 @@ namespace SharpLox
                     {
                         ConsumeNumber();
                     }
+                    else if (IsAlpha(c))
+                    {
+                        ConsumeIdentifier();
+                    }
                     else
                     {
                         Program.Error(line, "Unexpected character.");
@@ -124,6 +148,18 @@ namespace SharpLox
         private bool IsDigit(char c)
         {
             return c >= '0' && c <= '9';
+        }
+
+        private bool IsAlpha(char c)
+        {
+            return (c >= 'a' && c <= 'z')
+                || (c >= 'A' && c <= 'Z')
+                || c == '_';
+        }
+
+        private bool IsAlphaNumeric(char c)
+        {
+            return IsAlpha(c) || IsDigit(c);
         }
 
         private bool Match(char c)
@@ -227,6 +263,25 @@ namespace SharpLox
                 Advance();
             }
             Program.Error(line, "Unclosed string literal.");
+        }
+
+        private void ConsumeIdentifier()
+        {
+            while (IsAlphaNumeric(Peek()))
+            {
+                Advance();
+            }
+
+            var text = _source.Substring(start, current - start);
+
+            if (Keywords.ContainsKey(text))
+            {
+                AddToken(Keywords[text]);
+            }
+            else
+            {
+                AddToken(TokenType.Identifier);
+            }
         }
     }
 }
