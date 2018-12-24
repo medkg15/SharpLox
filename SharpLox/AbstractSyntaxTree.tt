@@ -108,7 +108,7 @@ namespace SharpLox
 		foreach(var type in tree.NodeTypes)
 		{
 #>
-			T Visit<#=type.Name#>(<#=tree.Name#> <#=tree.NameForParameter()#>);
+			T Visit<#=type.Name#>(<#=type.Name#> <#=tree.NameForParameter()#>);
 <#
 		}
 #>

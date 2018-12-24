@@ -6,10 +6,10 @@ namespace SharpLox
 	{
 		public interface Visitor<T>
 		{
-			T VisitBinary(Expression expression);
-			T VisitGrouping(Expression expression);
-			T VisitLiteral(Expression expression);
-			T VisitUnary(Expression expression);
+			T VisitBinary(Binary expression);
+			T VisitGrouping(Grouping expression);
+			T VisitLiteral(Literal expression);
+			T VisitUnary(Unary expression);
 		}
 
 		public abstract T Accept<T>(Visitor<T> visitor);
