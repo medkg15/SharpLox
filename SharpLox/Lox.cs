@@ -18,7 +18,7 @@ namespace SharpLox
             if (args.Length > 1)
             {
                 Console.WriteLine("Usage: sharplox [script]");
-                Environment.Exit(64);
+                System.Environment.Exit(64);
             }
             else if (args.Length == 1)
             {
@@ -32,15 +32,15 @@ namespace SharpLox
 
         private static void RunFile(string filename)
         {
-            var script = File.ReadAllText(Path.Combine(Environment.CurrentDirectory, filename));
+            var script = File.ReadAllText(Path.Combine(System.Environment.CurrentDirectory, filename));
             Run(script);
             if (hadError)
             {
-                Environment.Exit(65);
+                System.Environment.Exit(65);
             }
             if (hadRuntimeError)
             {
-                Environment.Exit(70);
+                System.Environment.Exit(70);
             }
         }
 

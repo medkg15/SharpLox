@@ -8,6 +8,8 @@ namespace SharpLox
 {
     public class Interpreter : Expression.Visitor<object>, Statement.Visitor
     {
+        private Environment _environment = new Environment();
+
         public void Interpret(List<Statement> statements)
         {
             try
@@ -42,6 +44,18 @@ namespace SharpLox
         {
             var value = Evaluate(statement.Expression);
             Console.WriteLine(Stringify(value));
+        }
+
+        public void VisitVarStatement(Statement.VarStatement statement)
+        {
+            object value = null;
+
+            if (statement.Initializer != null)
+            {
+                value = Evaluate(statement.Initializer);
+            }
+
+            _environment.Define(statement.Name.Lexeme, value);
         }
 
         public object VisitBinary(Expression.Binary expression)
@@ -116,6 +130,11 @@ namespace SharpLox
 
             // unreachable.
             return null;
+        }
+
+        public object VisitVariable(Expression.Variable expression)
+        {
+            return _environment.Get(expression.Name);
         }
 
         private void CheckNumberOperand(Token @operator, object right)

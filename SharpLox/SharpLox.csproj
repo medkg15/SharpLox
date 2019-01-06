@@ -48,6 +48,7 @@
       <DependentUpon>AbstractSyntaxTree.tt</DependentUpon>
     </Compile>
     <Compile Include="AstPrinter.cs" />
+    <Compile Include="Environment.cs" />
     <Compile Include="Interpreter.cs" />
     <Compile Include="Parser.cs" />
     <Compile Include="Lox.cs" />

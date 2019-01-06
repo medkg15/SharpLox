@@ -37,6 +37,11 @@ namespace SharpLox
             return Parenthesize(expression.Operator.Lexeme, expression.Right);
         }
 
+        public string VisitVariable(Expression.Variable expression)
+        {
+            return expression.Name.Lexeme;
+        }
+
         private string Parenthesize(string name, params Expression[] expressions)
         {
             var stringBuilder = new StringBuilder();
