@@ -3,6 +3,8 @@ Binary		: Expression left, Token operator, Expression right
 Grouping	: Expression expression
 Literal		: Object value
 Unary		: Token operator, Expression right
+Variable	: Token name
 Statement
 ExpressionStatement	: Expression expression
 PrintStatement		: Expression expression
+VarStatement		: Token name, Expression initializer

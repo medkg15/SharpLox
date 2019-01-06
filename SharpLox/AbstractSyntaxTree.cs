@@ -10,6 +10,7 @@ namespace SharpLox
 			T VisitGrouping(Grouping expression);
 			T VisitLiteral(Literal expression);
 			T VisitUnary(Unary expression);
+			T VisitVariable(Variable expression);
 		}
 
 		public abstract T Accept<T>(Visitor<T> visitor);
@@ -90,6 +91,23 @@ namespace SharpLox
 				return visitor.VisitUnary(this);
 			}
 		} 
+
+		public class Variable : Expression
+		{
+			public Variable(
+				Token name
+			)
+			{
+				this.Name = name;
+			}
+
+			public Token Name { get; set; }
+
+			public override T Accept<T>(Visitor<T> visitor)
+			{
+				return visitor.VisitVariable(this);
+			}
+		} 
 	}
 
 	public abstract class Statement
@@ -98,6 +116,7 @@ namespace SharpLox
 		{
 			void VisitExpressionStatement(ExpressionStatement statement);
 			void VisitPrintStatement(PrintStatement statement);
+			void VisitVarStatement(VarStatement statement);
 		}
 
 		public abstract void Accept(Visitor visitor);
@@ -133,6 +152,26 @@ namespace SharpLox
 			public override void Accept(Visitor visitor)
 			{
 				visitor.VisitPrintStatement(this);
+			}
+		} 
+
+		public class VarStatement : Statement
+		{
+			public VarStatement(
+				Token name,
+				Expression initializer
+			)
+			{
+				this.Name = name;
+				this.Initializer = initializer;
+			}
+
+			public Token Name { get; set; }
+			public Expression Initializer { get; set; }
+
+			public override void Accept(Visitor visitor)
+			{
+				visitor.VisitVarStatement(this);
 			}
 		} 
 	} 

@@ -21,16 +21,47 @@ namespace SharpLox
             try
             {
                 var statements = new List<Statement>();
-                while(!IsAtEnd())
+                while (!IsAtEnd())
                 {
-                    statements.Add(Statement());
+                    statements.Add(Declaration());
                 }
                 return statements;
             }
-            catch(ParseError error)
+            catch (ParseError error)
             {
                 return null;
             }
+        }
+
+        private Statement Declaration()
+        {
+            try
+            {
+                if (Match(TokenType.Var))
+                {
+                    return VarDeclaration();
+                }
+                return Statement();
+            }
+            catch (ParseError)
+            {
+                Synchronize();
+                return null;
+            }
+        }
+
+        private Statement VarDeclaration()
+        {
+            var name = Consume(TokenType.Identifier, "Expect variable name.");
+
+            Expression initializer = null;
+            if (Match(TokenType.Equal))
+            {
+                initializer = Expression();
+            }
+
+            Consume(TokenType.Semicolon, "Expect ';' after variable declaration");
+            return new Statement.VarStatement(name, initializer);
         }
 
         private Statement Statement()
@@ -150,6 +181,11 @@ namespace SharpLox
                 return new Expression.Literal(Previous().Literal);
             }
 
+            if (Match(TokenType.Identifier))
+            {
+                return new Expression.Variable(Previous());
+            }
+
             if (Match(TokenType.LeftParen))
             {
                 var expression = Expression();
@@ -171,7 +207,7 @@ namespace SharpLox
                     return;
                 }
 
-                switch(Peek().Type)
+                switch (Peek().Type)
                 {
                     case TokenType.Class:
                     case TokenType.Fun:
