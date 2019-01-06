@@ -90,5 +90,50 @@ namespace SharpLox
 				return visitor.VisitUnary(this);
 			}
 		} 
+	}
+
+	public abstract class Statement
+	{
+		public interface Visitor
+		{
+			void VisitExpressionStatement(ExpressionStatement statement);
+			void VisitPrintStatement(PrintStatement statement);
+		}
+
+		public abstract void Accept(Visitor visitor);
+
+		public class ExpressionStatement : Statement
+		{
+			public ExpressionStatement(
+				Expression expression
+			)
+			{
+				this.Expression = expression;
+			}
+
+			public Expression Expression { get; set; }
+
+			public override void Accept(Visitor visitor)
+			{
+				visitor.VisitExpressionStatement(this);
+			}
+		} 
+
+		public class PrintStatement : Statement
+		{
+			public PrintStatement(
+				Expression expression
+			)
+			{
+				this.Expression = expression;
+			}
+
+			public Expression Expression { get; set; }
+
+			public override void Accept(Visitor visitor)
+			{
+				visitor.VisitPrintStatement(this);
+			}
+		} 
 	} 
 } 

@@ -6,14 +6,16 @@ using System.Threading.Tasks;
 
 namespace SharpLox
 {
-    public class Interpreter : Expression.Visitor<object>
+    public class Interpreter : Expression.Visitor<object>, Statement.Visitor
     {
-        public void Interpret(Expression expression)
+        public void Interpret(List<Statement> statements)
         {
             try
             {
-                object value = Evaluate(expression);
-                Console.WriteLine(Stringify(value));
+                foreach(var statement in statements)
+                {
+                    Execute(statement);
+                }
             }
             catch(RuntimeError error)
             {
@@ -21,14 +23,25 @@ namespace SharpLox
             }
         }
 
-        private string Stringify(object obj)
+        private void Execute(Statement statement)
         {
-            if (obj == null)
-            {
-                return "nil";
-            }
+            statement.Accept(this);
+        }
+        
+        private object Evaluate(Expression expression)
+        {
+            return expression.Accept(this);
+        }
 
-            return obj.ToString();
+        public void VisitExpressionStatement(Statement.ExpressionStatement statement)
+        {
+            Evaluate(statement.Expression);
+        }
+
+        public void VisitPrintStatement(Statement.PrintStatement statement)
+        {
+            var value = Evaluate(statement.Expression);
+            Console.WriteLine(Stringify(value));
         }
 
         public object VisitBinary(Expression.Binary expression)
@@ -125,11 +138,6 @@ namespace SharpLox
             throw new RuntimeError(@operator, "Operands must be numbers.");
         }
 
-        private object Evaluate(Expression expression)
-        {
-            return expression.Accept(this);
-        }
-
         private bool IsEqual(object a, object b)
         {
             // nil is only equal to nil.               
@@ -156,6 +164,16 @@ namespace SharpLox
                 return boolVal;
             }
             return true;
+        }
+
+        private string Stringify(object obj)
+        {
+            if (obj == null)
+            {
+                return "nil";
+            }
+
+            return obj.ToString();
         }
     }
 }

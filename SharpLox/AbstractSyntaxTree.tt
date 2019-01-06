@@ -13,14 +13,14 @@
 
 // The expected format of the definition file is:
 /*
-	AstTypeOne
+	AstTypeOne<>
 	AstOneNodeTypeOne	: Type name, Type name2, Type name3
 	AstOneNodeTypeTwo	: Type name
 	AstTypeTwo
 	AstTwoNodeTypeOne	: Type name
 */
 
-// The first line is the AST type.  e.g. Expression or Statement.
+// The first line is the AST type.  e.g. Expression or Statement.  The precense of <> indicates the AST's visitor methods should return a value.  Otherwise, they do not.
 // Following lines (before the next AST type, if any) are each node type for that AST.
 // These have a name, followed by a field list (comma separated) after a ':'.  Each field consists of a Type (.NET type) and name.  The name should be camelCase.
 
@@ -101,20 +101,20 @@ namespace SharpLox
 #>
 	public abstract class <#=tree.Name#>
 	{
-		public interface Visitor<T>
+		public interface Visitor<#=tree.HasVisitResult ? "<T>" : ""#>
 		{
 <#
 		// write visitor methods for each node type.
 		foreach(var type in tree.NodeTypes)
 		{
 #>
-			T Visit<#=type.Name#>(<#=type.Name#> <#=tree.NameForParameter()#>);
+			<#=tree.HasVisitResult ? "T" : "void"#> Visit<#=type.Name#>(<#=type.Name#> <#=tree.NameForParameter()#>);
 <#
 		}
 #>
 		}
 
-		public abstract T Accept<T>(Visitor<T> visitor);
+		public abstract <#=tree.HasVisitResult ? "T" : "void"#> Accept<#=tree.HasVisitResult ? "<T>" : ""#>(Visitor<#=tree.HasVisitResult ? "<T>" : ""#> visitor);
 <#
 		// write node type classes
 		foreach(var type in tree.NodeTypes)
@@ -158,9 +158,9 @@ namespace SharpLox
 			}
 #>
 
-			public override T Accept<T>(Visitor<T> visitor)
+			public override <#=tree.HasVisitResult ? "T" : "void"#> Accept<#=tree.HasVisitResult ? "<T>" : ""#>(Visitor<#=tree.HasVisitResult ? "<T>" : ""#> visitor)
 			{
-				return visitor.Visit<#=type.Name#>(this);
+				<#=tree.HasVisitResult ? "return " : ""#>visitor.Visit<#=type.Name#>(this);
 			}
 		} <#// closing brace for node type class #>
 

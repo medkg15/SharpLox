@@ -16,24 +16,45 @@ namespace SharpLox
             _tokens = tokens;
         }
 
-        public Expression Parse()
+        public List<Statement> Parse()
         {
             try
             {
-                var expression = Expression();
-
-                if (!IsAtEnd())
+                var statements = new List<Statement>();
+                while(!IsAtEnd())
                 {
-                    Lox.Error(Previous(), "Invalid token.");
-                    return null;
+                    statements.Add(Statement());
                 }
-
-                return expression;
+                return statements;
             }
             catch(ParseError error)
             {
                 return null;
             }
+        }
+
+        private Statement Statement()
+        {
+            if (Match(TokenType.Print))
+            {
+                return PrintStatement();
+            }
+
+            return ExpressionStatement();
+        }
+
+        private Statement PrintStatement()
+        {
+            var value = Expression();
+            Consume(TokenType.Semicolon, "Expect ';' after value.");
+            return new Statement.PrintStatement(value);
+        }
+
+        private Statement ExpressionStatement()
+        {
+            var expression = Expression();
+            Consume(TokenType.Semicolon, "Expect ';' after expression.");
+            return new Statement.ExpressionStatement(expression);
         }
 
         private Expression Expression()

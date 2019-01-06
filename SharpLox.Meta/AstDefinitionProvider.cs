@@ -35,7 +35,16 @@ namespace SharpLox.Meta
                 {
                     var isFirst = currentAst == null;
                     currentAst = new AbstractSyntaxTree();
-                    currentAst.Name = line.Trim();
+                    var name = line.Trim();
+                    if (line.EndsWith("<>"))
+                    {
+                        currentAst.Name = line.Substring(0, line.Length - 2);
+                        currentAst.HasVisitResult = true;
+                    }
+                    else
+                    {
+                        currentAst.Name = line.Trim();
+                    }
                     currentAst.IsFirst = isFirst;
                     definition.Trees.Add(currentAst);
                 }

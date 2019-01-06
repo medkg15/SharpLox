@@ -15,6 +15,8 @@ namespace SharpLox.Meta
 
         public string Name { get; set; }
 
+        public bool HasVisitResult { get; set; }
+
         public List<NodeType> NodeTypes { get; set; }
         
         public bool IsFirst { get; set; }
