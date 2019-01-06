@@ -7,9 +7,11 @@ using System.Threading.Tasks;
 
 namespace SharpLox
 {
-    public static class Program
+    public static class Lox
     {
         private static bool hadError;
+        private static bool hadRuntimeError;
+        private static readonly Interpreter interpreter = new Interpreter();
 
         static void Main(string[] args)
         {
@@ -25,7 +27,7 @@ namespace SharpLox
             else
             {
                 RunPrompt();
-            }            
+            }
         }
 
         private static void RunFile(string filename)
@@ -36,11 +38,15 @@ namespace SharpLox
             {
                 Environment.Exit(65);
             }
+            if (hadRuntimeError)
+            {
+                Environment.Exit(70);
+            }
         }
 
         private static void RunPrompt()
         {
-            while(true)
+            while (true)
             {
                 Console.Write("> ");
                 var input = Console.ReadLine();
@@ -60,12 +66,12 @@ namespace SharpLox
             var parser = new Parser(tokens);
             var expression = parser.Parse();
 
-            if(hadError)
+            if (hadError)
             {
                 return;
             }
 
-            Console.WriteLine(new AstPrinter().Print(expression));
+            interpreter.Interpret(expression);
         }
 
         public static void Error(int line, string message)
@@ -76,14 +82,21 @@ namespace SharpLox
 
         public static void Error(Token token, string message)
         {
-            if(token.Type == TokenType.Eof)
+            if (token.Type == TokenType.Eof)
             {
                 Report(token.Line, " at end", message);
-            }else
+            }
+            else
             {
                 Report(token.Line, $" at '{token.Lexeme}'", message);
             }
             hadError = true;
+        }
+
+        public static void RuntimeError(RuntimeError error)
+        {
+            Console.WriteLine($"{error.Message} \n[line {error.Token.Line}]");
+            hadRuntimeError = true;
         }
 
         private static void Report(int line, string where, string message)

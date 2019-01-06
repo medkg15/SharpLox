@@ -8,6 +8,29 @@ namespace SharpLox
 {
     public class Interpreter : Expression.Visitor<object>
     {
+        public void Interpret(Expression expression)
+        {
+            try
+            {
+                object value = Evaluate(expression);
+                Console.WriteLine(Stringify(value));
+            }
+            catch(RuntimeError error)
+            {
+                Lox.RuntimeError(error);
+            }
+        }
+
+        private string Stringify(object obj)
+        {
+            if (obj == null)
+            {
+                return "nil";
+            }
+
+            return obj.ToString();
+        }
+
         public object VisitBinary(Expression.Binary expression)
         {
             var left = Evaluate(expression.Left);
@@ -16,10 +39,13 @@ namespace SharpLox
             switch (expression.Operator.Type)
             {
                 case TokenType.Minus:
+                    CheckNumberOperands(expression.Operator, left, right);
                     return (double)left - (double)right;
                 case TokenType.Slash:
+                    CheckNumberOperands(expression.Operator, left, right);
                     return (double)left / (double)right;
                 case TokenType.Star:
+                    CheckNumberOperands(expression.Operator, left, right);
                     return (double)left * (double)right;
                 case TokenType.Plus:
                     if (left is double && right is double)
@@ -30,19 +56,25 @@ namespace SharpLox
                     {
                         return (string)left + (string)right;
                     }
-                    break;
+                    throw new RuntimeError(expression.Operator, "Operands must be two numbers or two strings.");
                 case TokenType.Greater:
+                    CheckNumberOperands(expression.Operator, left, right);
                     return (double)left > (double)right;
                 case TokenType.GreaterEqual:
+                    CheckNumberOperands(expression.Operator, left, right);
                     return (double)left >= (double)right;
                 case TokenType.Less:
+                    CheckNumberOperands(expression.Operator, left, right);
                     return (double)left < (double)right;
                 case TokenType.LessEqual:
+                    CheckNumberOperands(expression.Operator, left, right);
                     return (double)left <= (double)right;
                 case TokenType.BangEqual:
                     return !IsEqual(left, right);
-                case TokenType.Equal:
+                case TokenType.EqualEqual:
                     return IsEqual(left, right);
+                default:
+                    throw new NotImplementedException();
             }
         }
 
@@ -63,6 +95,7 @@ namespace SharpLox
             switch (expression.Operator.Type)
             {
                 case TokenType.Minus:
+                    CheckNumberOperand(expression.Operator, right);
                     return -(double)right;
                 case TokenType.Bang:
                     return !IsTruthy(right);
@@ -70,6 +103,26 @@ namespace SharpLox
 
             // unreachable.
             return null;
+        }
+
+        private void CheckNumberOperand(Token @operator, object right)
+        {
+            if (right is double)
+            {
+                return;
+            }
+
+            throw new RuntimeError(@operator, "Operand must be a number.");
+        }
+
+        private void CheckNumberOperands(Token @operator, object left, object right)
+        {
+            if (right is double && left is double)
+            {
+                return;
+            }
+
+            throw new RuntimeError(@operator, "Operands must be numbers.");
         }
 
         private object Evaluate(Expression expression)

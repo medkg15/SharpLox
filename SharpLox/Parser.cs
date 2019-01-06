@@ -24,7 +24,7 @@ namespace SharpLox
 
                 if (!IsAtEnd())
                 {
-                    Program.Error(Previous(), "Invalid token.");
+                    Lox.Error(Previous(), "Invalid token.");
                     return null;
                 }
 
@@ -132,7 +132,7 @@ namespace SharpLox
             if (Match(TokenType.LeftParen))
             {
                 var expression = Expression();
-                Consume(TokenType.LeftParen, "Expect ')' after expression.");
+                Consume(TokenType.RightParen, "Expect ')' after expression.");
                 return new Expression.Grouping(expression);
             }
 
@@ -179,7 +179,7 @@ namespace SharpLox
 
         private ParseError Error(Token token, string message)
         {
-            Program.Error(token, message);
+            Lox.Error(token, message);
             return new ParseError();
         }
 

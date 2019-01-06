@@ -99,7 +99,7 @@ namespace SharpLox
                     }
                     else
                     {
-                        Program.Error(line, "Unexpected character.");
+                        Lox.Error(line, "Unexpected character.");
                     }
                     break;
             }
@@ -213,7 +213,7 @@ namespace SharpLox
 
                 if (!foundEnd)
                 {
-                    Program.Error(line, "Unclosed comment block.");
+                    Lox.Error(line, "Unclosed comment block.");
                 }
 
                 return true;
@@ -256,13 +256,13 @@ namespace SharpLox
 
                 if (Peek() == '\n')
                 {
-                    Program.Error(line, "Unclosed string literal.");
+                    Lox.Error(line, "Unclosed string literal.");
                     return;
                 }
 
                 Advance();
             }
-            Program.Error(line, "Unclosed string literal.");
+            Lox.Error(line, "Unclosed string literal.");
         }
 
         private void ConsumeIdentifier()
