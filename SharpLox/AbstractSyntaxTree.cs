@@ -11,6 +11,7 @@ namespace SharpLox
 			T VisitLiteral(Literal expression);
 			T VisitUnary(Unary expression);
 			T VisitVariable(Variable expression);
+			T VisitAssign(Assign expression);
 		}
 
 		public abstract T Accept<T>(Visitor<T> visitor);
@@ -106,6 +107,26 @@ namespace SharpLox
 			public override T Accept<T>(Visitor<T> visitor)
 			{
 				return visitor.VisitVariable(this);
+			}
+		} 
+
+		public class Assign : Expression
+		{
+			public Assign(
+				Token name,
+				Expression value
+			)
+			{
+				this.Name = name;
+				this.Value = value;
+			}
+
+			public Token Name { get; set; }
+			public Expression Value { get; set; }
+
+			public override T Accept<T>(Visitor<T> visitor)
+			{
+				return visitor.VisitAssign(this);
 			}
 		} 
 	}

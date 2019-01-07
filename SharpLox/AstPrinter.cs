@@ -13,6 +13,11 @@ namespace SharpLox
             return expression.Accept(this);
         }
 
+        public string VisitAssign(Expression.Assign expression)
+        {
+            return expression.Name.Lexeme + "=" + expression.Accept(this);
+        }
+
         public string VisitBinary(Expression.Binary expression)
         {
             return Parenthesize(expression.Operator.Lexeme, expression.Left, expression.Right);
@@ -49,7 +54,7 @@ namespace SharpLox
             stringBuilder.Append("(")
                 .Append(name);
 
-            foreach(var expression in expressions)
+            foreach (var expression in expressions)
             {
                 stringBuilder.Append(" ")
                     .Append(expression.Accept(this));

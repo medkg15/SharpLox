@@ -4,6 +4,7 @@ Grouping	: Expression expression
 Literal		: Object value
 Unary		: Token operator, Expression right
 Variable	: Token name
+Assign		: Token name, Expression value
 Statement
 ExpressionStatement	: Expression expression
 PrintStatement		: Expression expression

@@ -137,6 +137,13 @@ namespace SharpLox
             return _environment.Get(expression.Name);
         }
 
+        public object VisitAssign(Expression.Assign expression)
+        {
+            var value = Evaluate(expression.Value);
+            _environment.Assign(expression.Name, value);
+            return value;
+        }
+
         private void CheckNumberOperand(Token @operator, object right)
         {
             if (right is double)

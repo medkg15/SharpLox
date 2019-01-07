@@ -90,7 +90,28 @@ namespace SharpLox
 
         private Expression Expression()
         {
-            return Equality();
+            return Assignment();
+        }
+
+        private Expression Assignment()
+        {
+            var expression = Equality();
+
+            if (Match(TokenType.Equal))
+            {
+                var equals = Previous();
+                var value = Assignment();
+
+                if (expression is Expression.Variable variable)
+                {
+                    var name = variable.Name;
+                    return new Expression.Assign(name, value);
+                }
+
+                Error(equals, "Invalid assignment target.");
+            }
+
+            return expression;
         }
 
         private Expression Equality()
