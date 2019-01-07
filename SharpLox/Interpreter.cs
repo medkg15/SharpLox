@@ -161,6 +161,28 @@ namespace SharpLox
             return value;
         }
 
+        public object VisitLogical(Expression.Logical expression)
+        {
+            var left = Evaluate(expression.Left);
+
+            if (expression.Operator.Type == TokenType.Or)
+            {
+                if (IsTruthy(left))
+                {
+                    return left;
+                }
+            }
+            else
+            {
+                if (!IsTruthy(left))
+                {
+                    return left;
+                }
+            }
+
+            return Evaluate(expression.Right);
+        }
+
         private void CheckNumberOperand(Token @operator, object right)
         {
             if (right is double)

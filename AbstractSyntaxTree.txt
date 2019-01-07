@@ -5,6 +5,7 @@ Literal		: Object value
 Unary		: Token operator, Expression right
 Variable	: Token name
 Assign		: Token name, Expression value
+Logical		: Expression left, Token operator, Expression right
 Statement
 ExpressionStatement	: Expression expression
 PrintStatement		: Expression expression

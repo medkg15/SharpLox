@@ -37,6 +37,11 @@ namespace SharpLox
             return expression.Value.ToString();
         }
 
+        public string VisitLogical(Expression.Logical expression)
+        {
+            return Parenthesize(expression.Left.Accept(this) + expression.Operator.Lexeme + expression.Right.Accept(this));
+        }
+
         public string VisitUnary(Expression.Unary expression)
         {
             return Parenthesize(expression.Operator.Lexeme, expression.Right);

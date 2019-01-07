@@ -88,7 +88,7 @@ namespace SharpLox
         {
             var statements = new List<Statement>();
 
-            while(!Check(TokenType.RightBrace) && !IsAtEnd())
+            while (!Check(TokenType.RightBrace) && !IsAtEnd())
             {
                 statements.Add(Declaration());
             }
@@ -137,7 +137,7 @@ namespace SharpLox
 
         private Expression Assignment()
         {
-            var expression = Equality();
+            var expression = Or();
 
             if (Match(TokenType.Equal))
             {
@@ -151,6 +151,34 @@ namespace SharpLox
                 }
 
                 Error(equals, "Invalid assignment target.");
+            }
+
+            return expression;
+        }
+
+        private Expression Or()
+        {
+            var expression = And();
+
+            while (Match(TokenType.Or))
+            {
+                var token = Previous();
+                var right = And();
+                expression = new Expression.Logical(expression, token, right);
+            }
+            
+            return expression;
+        }
+
+        private Expression And()
+        {
+            var expression = Equality();
+
+            while (Match(TokenType.And))
+            {
+                var token = Previous();
+                var right = Equality();
+                expression = new Expression.Logical(expression, token, right);
             }
 
             return expression;
