@@ -71,7 +71,25 @@ namespace SharpLox
                 return PrintStatement();
             }
 
+            if (Match(TokenType.LeftBrace))
+            {
+                return new Statement.Block(Block());
+            }
+
             return ExpressionStatement();
+        }
+
+        private List<Statement> Block()
+        {
+            var statements = new List<Statement>();
+
+            while(!Check(TokenType.RightBrace) && !IsAtEnd())
+            {
+                statements.Add(Declaration());
+            }
+
+            Consume(TokenType.RightBrace, "Expect '}' after block.");
+            return statements;
         }
 
         private Statement PrintStatement()

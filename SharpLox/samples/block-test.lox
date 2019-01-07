@@ -1,0 +1,17 @@
+var global = "123";
+
+{
+	var local = "456";
+	
+	print global + local;
+	
+	var shadow = 1;
+	
+	{
+		var shadow = 2;
+		
+		print shadow;
+	}
+	
+	print shadow;
+}

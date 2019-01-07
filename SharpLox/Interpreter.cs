@@ -58,6 +58,11 @@ namespace SharpLox
             _environment.Define(statement.Name.Lexeme, value);
         }
 
+        public void VisitBlock(Statement.Block statement)
+        {
+            ExecuteBlock(statement.Statements, new Environment(_environment));
+        }
+
         public object VisitBinary(Expression.Binary expression)
         {
             var left = Evaluate(expression.Left);
@@ -200,6 +205,24 @@ namespace SharpLox
             }
 
             return obj.ToString();
+        }
+
+        private void ExecuteBlock(List<Statement> statements, Environment environment)
+        {
+            var originalEnvironment = _environment;
+            try
+            {
+                _environment = environment;
+
+                foreach (var statement in statements)
+                {
+                    Execute(statement);
+                }
+            }
+            finally
+            {
+                _environment = originalEnvironment;
+            }
         }
     }
 }

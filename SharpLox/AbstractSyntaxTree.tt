@@ -27,6 +27,7 @@
 // The example above would produce:
 /*
 	using System;
+	using System.Collections.Generic;
 
 	namespace SharpLox
 	{
@@ -82,6 +83,7 @@
 // Further, this template produces a Visitor interface and the associated Accept() methods for each node type.
 #>
 using System;
+using System.Collections.Generic;
 
 namespace SharpLox
 {

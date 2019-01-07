@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace SharpLox
 {
@@ -138,6 +139,7 @@ namespace SharpLox
 			void VisitExpressionStatement(ExpressionStatement statement);
 			void VisitPrintStatement(PrintStatement statement);
 			void VisitVarStatement(VarStatement statement);
+			void VisitBlock(Block statement);
 		}
 
 		public abstract void Accept(Visitor visitor);
@@ -193,6 +195,23 @@ namespace SharpLox
 			public override void Accept(Visitor visitor)
 			{
 				visitor.VisitVarStatement(this);
+			}
+		} 
+
+		public class Block : Statement
+		{
+			public Block(
+				List<Statement> statements
+			)
+			{
+				this.Statements = statements;
+			}
+
+			public List<Statement> Statements { get; set; }
+
+			public override void Accept(Visitor visitor)
+			{
+				visitor.VisitBlock(this);
 			}
 		} 
 	} 
