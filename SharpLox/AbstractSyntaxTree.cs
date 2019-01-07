@@ -140,6 +140,7 @@ namespace SharpLox
 			void VisitPrintStatement(PrintStatement statement);
 			void VisitVarStatement(VarStatement statement);
 			void VisitBlock(Block statement);
+			void VisitIfStatement(IfStatement statement);
 		}
 
 		public abstract void Accept(Visitor visitor);
@@ -212,6 +213,29 @@ namespace SharpLox
 			public override void Accept(Visitor visitor)
 			{
 				visitor.VisitBlock(this);
+			}
+		} 
+
+		public class IfStatement : Statement
+		{
+			public IfStatement(
+				Expression condition,
+				Statement thenBranch,
+				Statement elseBranch
+			)
+			{
+				this.Condition = condition;
+				this.ThenBranch = thenBranch;
+				this.ElseBranch = elseBranch;
+			}
+
+			public Expression Condition { get; set; }
+			public Statement ThenBranch { get; set; }
+			public Statement ElseBranch { get; set; }
+
+			public override void Accept(Visitor visitor)
+			{
+				visitor.VisitIfStatement(this);
 			}
 		} 
 	} 

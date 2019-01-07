@@ -27,7 +27,7 @@ namespace SharpLox
                 }
                 return statements;
             }
-            catch (ParseError error)
+            catch (ParseError)
             {
                 return null;
             }
@@ -76,6 +76,11 @@ namespace SharpLox
                 return new Statement.Block(Block());
             }
 
+            if (Match(TokenType.If))
+            {
+                return IfStatement();
+            }
+
             return ExpressionStatement();
         }
 
@@ -90,6 +95,25 @@ namespace SharpLox
 
             Consume(TokenType.RightBrace, "Expect '}' after block.");
             return statements;
+        }
+
+        private Statement IfStatement()
+        {
+            Consume(TokenType.LeftParen, "Expect '(' after if.");
+
+            var expression = Expression();
+
+            Consume(TokenType.RightParen, "Expect ')' after expression.");
+
+            var thenBranch = Statement();
+
+            Statement elseBranch = null;
+            if (Match(TokenType.Else))
+            {
+                elseBranch = Statement();
+            }
+
+            return new Statement.IfStatement(expression, thenBranch, elseBranch);
         }
 
         private Statement PrintStatement()

@@ -10,3 +10,4 @@ ExpressionStatement	: Expression expression
 PrintStatement		: Expression expression
 VarStatement		: Token name, Expression initializer
 Block				: List<Statement> statements
+IfStatement			: Expression condition, Statement thenBranch, Statement elseBranch

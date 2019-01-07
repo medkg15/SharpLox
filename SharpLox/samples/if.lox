@@ -1,0 +1,15 @@
+var x = 12;
+
+if (x > 13)
+{
+	print "greater";
+}
+else
+{
+	print "lesser";
+}
+
+if (x == 12)
+{
+	print "equal";
+}

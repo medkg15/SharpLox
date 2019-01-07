@@ -14,12 +14,12 @@ namespace SharpLox
         {
             try
             {
-                foreach(var statement in statements)
+                foreach (var statement in statements)
                 {
                     Execute(statement);
                 }
             }
-            catch(RuntimeError error)
+            catch (RuntimeError error)
             {
                 Lox.RuntimeError(error);
             }
@@ -29,7 +29,7 @@ namespace SharpLox
         {
             statement.Accept(this);
         }
-        
+
         private object Evaluate(Expression expression)
         {
             return expression.Accept(this);
@@ -61,6 +61,18 @@ namespace SharpLox
         public void VisitBlock(Statement.Block statement)
         {
             ExecuteBlock(statement.Statements, new Environment(_environment));
+        }
+
+        public void VisitIfStatement(Statement.IfStatement statement)
+        {
+            if (IsTruthy(Evaluate(statement.Condition)))
+            {
+                Execute(statement.ThenBranch);
+            }
+            else if (statement.ElseBranch != null)
+            {
+                Execute(statement.ElseBranch);
+            }
         }
 
         public object VisitBinary(Expression.Binary expression)
